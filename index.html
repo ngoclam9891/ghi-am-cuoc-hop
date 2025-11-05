@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tóm Tắt Cuộc Họp</title>
+    <title>Ứng Dụng Ghi Âm & Tóm Tắt Cuộc Họp</title>
     <style>
         * {
             margin: 0;
@@ -44,28 +44,89 @@
             font-size: 1.1em;
         }
 
+        .mode-badge {
+            display: inline-block;
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
         .content {
             padding: 30px;
         }
 
         .info-box {
-            background: #dbeafe;
-            border-left: 4px solid #3b82f6;
             padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid;
         }
 
-        .info-box h3 {
-            color: #1e40af;
-            margin-bottom: 10px;
-            font-size: 1.2em;
+        .info-box.online {
+            background: #dcfce7;
+            border-color: #10b981;
         }
 
-        .info-box ul {
-            margin-left: 20px;
-            color: #1e3a8a;
-            line-height: 1.8;
+        .info-box.online strong {
+            color: #065f46;
+        }
+
+        .info-box.offline {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .info-box.offline strong {
+            color: #92400e;
+        }
+
+        .recording-section {
+            display: none;
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .recording-section.active {
+            display: block;
+        }
+
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px;
+            background: #fee2e2;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        .pulse {
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.2); }
+        }
+
+        .timer {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ef4444;
+            font-family: monospace;
         }
 
         .section {
@@ -84,9 +145,89 @@
             gap: 10px;
         }
 
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-record {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-stop {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-clear {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-summarize {
+            background: #10b981;
+            color: white;
+            font-size: 18px;
+        }
+
+        .btn-download {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-copy {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .transcript-box {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .transcript-box:empty::before {
+            content: "Nội dung sẽ xuất hiện ở đây...";
+            color: #9ca3af;
+            font-style: italic;
+        }
+
         .input-area {
             width: 100%;
-            min-height: 300px;
+            min-height: 250px;
             padding: 20px;
             border: 2px solid #e5e7eb;
             border-radius: 10px;
@@ -103,68 +244,14 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .input-area::placeholder {
-            color: #9ca3af;
-        }
-
-        .char-count {
-            text-align: right;
+        .timestamp {
+            display: inline-block;
             color: #6b7280;
-            font-size: 0.9em;
-            margin-top: 8px;
-        }
-
-        .control-panel {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 25px 0;
-        }
-
-        .btn {
-            padding: 15px 35px;
-            font-size: 16px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-summarize {
-            background: #10b981;
-            color: white;
-            font-size: 18px;
-        }
-
-        .btn-clear {
-            background: #f59e0b;
-            color: white;
-        }
-
-        .btn-download {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .btn-copy {
-            background: #8b5cf6;
-            color: white;
+            font-size: 0.85em;
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
         }
 
         .summary-box {
@@ -173,11 +260,10 @@
             border-radius: 10px;
             padding: 20px;
             min-height: 200px;
-            line-height: 1.8;
         }
 
         .summary-box:empty::before {
-            content: "Bản tóm tắt sẽ xuất hiện ở đây sau khi bạn nhấn nút 'Tóm Tắt'...";
+            content: "Bản tóm tắt sẽ xuất hiện ở đây...";
             color: #9ca3af;
             font-style: italic;
         }
@@ -252,19 +338,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        .example-box {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 0.95em;
-        }
-
-        .example-box strong {
-            color: #92400e;
-        }
-
         .toast {
             position: fixed;
             bottom: 30px;
@@ -275,11 +348,12 @@
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
             display: none;
-            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
         }
 
         .toast.active {
             display: block;
+            animation: slideIn 0.3s ease-out;
         }
 
         @keyframes slideIn {
@@ -308,7 +382,7 @@
             }
 
             .stats-box {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
             }
         }
     </style>
@@ -316,40 +390,56 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📋 Tóm Tắt Cuộc Họp</h1>
-            <p>Nhập nội dung cuộc họp và tự động tóm tắt các điểm quan trọng</p>
+            <h1>🎙️ Ghi Âm & Tóm Tắt Cuộc Họp</h1>
+            <p>Ghi âm hoặc nhập nội dung cuộc họp - Tự động tóm tắt các điểm quan trọng</p>
+            <div class="mode-badge" id="modeBadge">⚙️ Đang khởi tạo...</div>
         </div>
 
         <div class="content">
-            <div class="info-box">
-                <h3>💡 Hướng dẫn sử dụng:</h3>
-                <ul>
-                    <li><strong>Bước 1:</strong> Gõ hoặc dán nội dung cuộc họp vào ô bên dưới</li>
-                    <li><strong>Bước 2:</strong> Nhấn nút "Tóm Tắt Ngay" để phân tích</li>
-                    <li><strong>Bước 3:</strong> Xem kết quả và tải xuống nếu cần</li>
-                </ul>
+            <!-- Thông báo chế độ -->
+            <div class="info-box" id="infoBox">
+                <strong>📌 Đang kiểm tra môi trường...</strong>
             </div>
 
-            <div class="section">
+            <!-- Chế độ ghi âm (chỉ hiện khi online) -->
+            <div class="recording-section" id="recordingSection">
+                <div class="recording-indicator" id="recordingIndicator">
+                    <div class="pulse"></div>
+                    <span style="font-size: 1.2em; font-weight: bold;">🎤 Đang ghi âm...</span>
+                    <span class="timer" id="timer">00:00</span>
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-record" id="recordBtn" onclick="startRecording()">
+                        ⏺️ Bắt Đầu Ghi Âm
+                    </button>
+                    <button class="btn btn-stop" id="stopBtn" onclick="stopRecording()" disabled>
+                        ⏹️ Dừng Ghi Âm
+                    </button>
+                </div>
+
+                <div class="section">
+                    <h2>📝 Nội Dung Đã Ghi</h2>
+                    <div class="transcript-box" id="transcriptBox"></div>
+                </div>
+            </div>
+
+            <!-- Chế độ nhập text (chỉ hiện khi offline) -->
+            <div class="section" id="textInputSection" style="display: none;">
                 <h2>✍️ Nhập Nội Dung Cuộc Họp</h2>
                 <textarea 
                     class="input-area" 
                     id="inputText" 
-                    placeholder="Nhập hoặc dán nội dung cuộc họp vào đây...&#10;&#10;Ví dụ:&#10;- Bàn về dự án phát triển app mobile mới&#10;- Deadline là 30/12/2025&#10;- Anh Minh phụ trách phần backend&#10;- Chị Lan làm UI/UX&#10;- Ngân sách dự kiến 500 triệu&#10;- Họp tiếp vào thứ 6 tuần sau"
-                    oninput="updateCharCount()"></textarea>
-                <div class="char-count" id="charCount">0 ký tự</div>
-
-                <div class="example-box">
-                    <strong>💡 Gợi ý:</strong> Ứng dụng sẽ tự động tìm các thông tin quan trọng như: deadline, tên người phụ trách, số liệu, quyết định, kế hoạch, v.v.
-                </div>
+                    placeholder="Nhập hoặc dán nội dung cuộc họp vào đây...&#10;&#10;Ví dụ:&#10;- Bàn về dự án phát triển app mobile mới&#10;- Deadline là 30/12/2025&#10;- Anh Minh phụ trách phần backend&#10;- Chị Lan làm UI/UX&#10;- Ngân sách dự kiến 500 triệu&#10;- Họp tiếp vào thứ 6 tuần sau"></textarea>
             </div>
 
+            <!-- Nút điều khiển chung -->
             <div class="control-panel">
-                <button class="btn btn-summarize" onclick="summarizeContent()">
-                    ✨ Tóm Tắt Ngay
-                </button>
                 <button class="btn btn-clear" onclick="clearAll()">
                     🗑️ Xóa Tất Cả
+                </button>
+                <button class="btn btn-summarize" id="summarizeBtn" onclick="summarizeContent()">
+                    ✨ Tóm Tắt Ngay
                 </button>
                 <button class="btn btn-copy" id="copyBtn" onclick="copySummary()" disabled>
                     📋 Sao Chép
@@ -364,6 +454,7 @@
                 <p style="color: #6b7280; font-size: 1.1em;">Đang phân tích và tóm tắt nội dung...</p>
             </div>
 
+            <!-- Phần tóm tắt -->
             <div class="section" id="summarySection" style="display: none;">
                 <h2>⭐ Bản Tóm Tắt</h2>
                 <div class="summary-box" id="summary"></div>
@@ -375,28 +466,187 @@
     <div class="toast" id="toast">✓ Đã sao chép!</div>
 
     <script>
-        function updateCharCount() {
-            const text = document.getElementById('inputText').value;
-            const count = text.length;
-            document.getElementById('charCount').textContent = count.toLocaleString('vi-VN') + ' ký tự';
+        let isOnline = false;
+        let mediaRecorder;
+        let recognition;
+        let isRecording = false;
+        let startTime;
+        let timerInterval;
+        let fullTranscript = '';
+
+        // Khởi tạo khi tải trang
+        window.onload = function() {
+            detectEnvironment();
+        };
+
+        function detectEnvironment() {
+            // Kiểm tra xem có chạy trên web không (https:// hoặc http://)
+            isOnline = window.location.protocol.includes('http') && !window.location.protocol.includes('file');
+
+            const modeBadge = document.getElementById('modeBadge');
+            const infoBox = document.getElementById('infoBox');
+
+            if (isOnline) {
+                // Chế độ ONLINE - Hiện ghi âm
+                modeBadge.innerHTML = '🌐 Chế độ: GHI ÂM';
+                modeBadge.style.background = 'rgba(16, 185, 129, 0.3)';
+                infoBox.className = 'info-box online';
+                infoBox.innerHTML = `
+                    <strong>✅ Chế độ Ghi Âm đã sẵn sàng!</strong>
+                    <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                        <li>Nhấn "Bắt Đầu Ghi Âm" để bắt đầu</li>
+                        <li>Ứng dụng sẽ tự động chuyển lời nói thành văn bản</li>
+                        <li>Nhấn "Dừng" khi kết thúc, sau đó "Tóm Tắt" để xem kết quả</li>
+                    </ul>
+                `;
+                document.getElementById('recordingSection').classList.add('active');
+                document.getElementById('textInputSection').style.display = 'none';
+                initSpeechRecognition();
+            } else {
+                // Chế độ OFFLINE - Hiện nhập text
+                modeBadge.innerHTML = '📝 Chế độ: NHẬP TEXT';
+                modeBadge.style.background = 'rgba(245, 158, 11, 0.3)';
+                infoBox.className = 'info-box offline';
+                infoBox.innerHTML = `
+                    <strong>💡 Chế độ Nhập Text</strong>
+                    <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                        <li>Để dùng tính năng GHI ÂM, vui lòng upload file lên web (GitHub Pages, Netlify, v.v.)</li>
+                        <li>Hiện tại: Bạn có thể gõ hoặc dán nội dung cuộc họp vào ô bên dưới</li>
+                        <li>Nhấn "Tóm Tắt Ngay" để phân tích nội dung</li>
+                    </ul>
+                `;
+                document.getElementById('recordingSection').classList.remove('active');
+                document.getElementById('textInputSection').style.display = 'block';
+            }
+        }
+
+        function initSpeechRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'vi-VN';
+
+                recognition.onresult = function(event) {
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript + ' ';
+                        }
+                    }
+
+                    if (finalTranscript) {
+                        const timestamp = new Date().toLocaleTimeString('vi-VN');
+                        fullTranscript += finalTranscript;
+                        const transcriptDiv = document.getElementById('transcriptBox');
+                        transcriptDiv.innerHTML += `<span class="timestamp">${timestamp}</span>${finalTranscript}<br><br>`;
+                        transcriptDiv.scrollTop = transcriptDiv.scrollHeight;
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Lỗi nhận dạng:', event.error);
+                    if (event.error === 'no-speech' && isRecording) {
+                        recognition.start();
+                    }
+                };
+
+                recognition.onend = function() {
+                    if (isRecording) {
+                        recognition.start();
+                    }
+                };
+
+                return true;
+            } else {
+                alert('⚠️ Trình duyệt không hỗ trợ nhận dạng giọng nói. Vui lòng dùng Chrome hoặc Edge.');
+                return false;
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                
+                if (recognition) {
+                    recognition.start();
+                }
+                
+                isRecording = true;
+
+                document.getElementById('recordBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('recordingIndicator').classList.add('active');
+
+                startTime = Date.now();
+                timerInterval = setInterval(updateTimer, 1000);
+
+            } catch (error) {
+                alert('❌ Không thể truy cập microphone. Vui lòng cho phép truy cập microphone trong trình duyệt.');
+                console.error('Lỗi:', error);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+
+            if (recognition) {
+                recognition.stop();
+            }
+
+            isRecording = false;
+            clearInterval(timerInterval);
+
+            document.getElementById('recordBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('recordingIndicator').classList.remove('active');
+        }
+
+        function updateTimer() {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timer').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
         function clearAll() {
             if (confirm('Bạn có chắc muốn xóa tất cả nội dung?')) {
-                document.getElementById('inputText').value = '';
+                if (isOnline) {
+                    document.getElementById('transcriptBox').innerHTML = '';
+                    fullTranscript = '';
+                } else {
+                    document.getElementById('inputText').value = '';
+                }
                 document.getElementById('summary').innerHTML = '';
                 document.getElementById('summarySection').style.display = 'none';
                 document.getElementById('copyBtn').disabled = true;
                 document.getElementById('downloadBtn').disabled = true;
-                updateCharCount();
             }
         }
 
         function summarizeContent() {
-            const text = document.getElementById('inputText').value.trim();
+            let text = '';
+            
+            if (isOnline) {
+                text = fullTranscript || document.getElementById('transcriptBox').innerText;
+            } else {
+                text = document.getElementById('inputText').value;
+            }
+            
+            text = text.trim();
             
             if (!text) {
-                alert('⚠️ Vui lòng nhập nội dung cuộc họp trước!');
+                alert('⚠️ Vui lòng nhập hoặc ghi âm nội dung trước!');
                 return;
             }
 
@@ -405,11 +655,9 @@
                 return;
             }
 
-            // Hiển thị loading
             document.getElementById('loading').classList.add('active');
             document.getElementById('summarySection').style.display = 'none';
 
-            // Giả lập xử lý (1.5 giây)
             setTimeout(() => {
                 const summary = generateSmartSummary(text);
                 document.getElementById('summary').innerHTML = summary.content;
@@ -419,24 +667,21 @@
                 document.getElementById('copyBtn').disabled = false;
                 document.getElementById('downloadBtn').disabled = false;
 
-                // Cuộn xuống kết quả
                 document.getElementById('summarySection').scrollIntoView({ behavior: 'smooth' });
             }, 1500);
         }
 
         function generateSmartSummary(text) {
-            // Tách câu
             const sentences = text.split(/[.!?\n]+/).filter(s => s.trim().length > 10);
             
-            // Từ khóa quan trọng (mở rộng)
             const keywords = {
-                time: ['deadline', 'ngày', 'tháng', 'tuần', 'thứ', 'hẹn', 'lịch', 'khi nào', 'bao giờ'],
-                people: ['anh', 'chị', 'ông', 'bà', 'thầy', 'cô', 'phụ trách', 'làm', 'đảm nhiệm'],
-                numbers: ['triệu', 'tỷ', 'ngàn', '%', 'phần trăm', 'số lượng', 'đô la', 'vnđ'],
-                tasks: ['cần', 'phải', 'làm', 'hoàn thành', 'thực hiện', 'triển khai', 'bắt đầu'],
-                decisions: ['quyết định', 'thống nhất', 'đồng ý', 'chốt', 'kết luận', 'chấp thuận'],
-                projects: ['dự án', 'project', 'kế hoạch', 'chiến lược', 'mục tiêu'],
-                important: ['quan trọng', 'cấp bách', 'ưu tiên', 'khẩn', 'ngay']
+                time: ['deadline', 'ngày', 'tháng', 'tuần', 'thứ', 'hẹn', 'lịch', 'khi nào', 'bao giờ', 'giờ'],
+                people: ['anh', 'chị', 'ông', 'bà', 'thầy', 'cô', 'phụ trách', 'làm', 'đảm nhiệm', 'người'],
+                numbers: ['triệu', 'tỷ', 'ngàn', '%', 'phần trăm', 'số lượng', 'đô la', 'vnđ', 'đồng'],
+                tasks: ['cần', 'phải', 'làm', 'hoàn thành', 'thực hiện', 'triển khai', 'bắt đầu', 'xong'],
+                decisions: ['quyết định', 'thống nhất', 'đồng ý', 'chốt', 'kết luận', 'chấp thuận', 'ok'],
+                projects: ['dự án', 'project', 'kế hoạch', 'chiến lược', 'mục tiêu', 'ý tưởng'],
+                important: ['quan trọng', 'cấp bách', 'ưu tiên', 'khẩn', 'ngay', 'lưu ý']
             };
 
             let categorizedSummary = {
@@ -449,7 +694,6 @@
                 important: []
             };
 
-            // Phân loại câu theo từ khóa
             sentences.forEach(sentence => {
                 const lowerSentence = sentence.toLowerCase().trim();
                 
@@ -464,7 +708,6 @@
                 }
             });
 
-            // Tạo HTML tóm tắt
             let summaryHTML = '';
             let totalPoints = 0;
 
@@ -494,7 +737,6 @@
                 }
             }
 
-            // Nếu không tìm thấy từ khóa, lấy câu đầu và cuối
             if (totalPoints === 0) {
                 summaryHTML += `<div class="summary-item"><strong>📌 Nội dung chính:</strong> ${sentences[0]}</div>`;
                 if (sentences.length > 1) {
@@ -503,7 +745,6 @@
                 totalPoints = 2;
             }
 
-            // Thống kê
             const wordCount = text.split(/\s+/).length;
             const sentenceCount = sentences.length;
             const avgWordsPerSentence = Math.round(wordCount / sentenceCount);
@@ -539,12 +780,13 @@
             const fullText = `TÓM TẮT CUỘC HỌP\n\n${summaryText}\n\nTHỐNG KÊ\n${statsText}`;
             
             navigator.clipboard.writeText(fullText).then(() => {
-                showToast();
+                showToast('✓ Đã sao chép!');
             });
         }
 
-        function showToast() {
+        function showToast(message) {
             const toast = document.getElementById('toast');
+            toast.textContent = message;
             toast.classList.add('active');
             setTimeout(() => {
                 toast.classList.remove('active');
@@ -552,7 +794,13 @@
         }
 
         function downloadSummary() {
-            const originalText = document.getElementById('inputText').value;
+            let originalText = '';
+            if (isOnline) {
+                originalText = fullTranscript || document.getElementById('transcriptBox').innerText;
+            } else {
+                originalText = document.getElementById('inputText').value;
+            }
+
             const summaryText = document.getElementById('summary').innerText;
             const statsText = document.getElementById('statsBox').innerText;
             
@@ -562,6 +810,7 @@
 
 Ngày tạo: ${new Date().toLocaleDateString('vi-VN')}
 Thời gian: ${new Date().toLocaleTimeString('vi-VN')}
+Phương thức: ${isOnline ? 'Ghi âm' : 'Nhập text'}
 
 ═══════════════════════════════════════
 📋 NỘI DUNG GỐC
@@ -581,8 +830,6 @@ ${summaryText}
 
 ${statsText}
 
-═══════════════════════════════════════
-Được tạo bởi: Ứng Dụng Tóm Tắt Cuộc Họp
 ═══════════════════════════════════════
 `;
 
